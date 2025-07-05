@@ -38,6 +38,7 @@ body {
 
 
 
+
 /* Start Screen */
 
 #startscreen h1 {
@@ -182,4 +183,17 @@ box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
 
 .retry-btn:hover {
   background: linear-gradient(to right, #4c48e0, #6634cc);
+}
+
+.option-btn {
+  border: none;
+  border-radius: 5px;
+  background: #eee;
+  transition: background 0.2s, color 0.2s;
+  cursor: pointer;
+  margin-bottom: 8px;
+}
+.option-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }

@@ -1,6 +1,4 @@
-
 const questions = [
-
   {
     question: "What is the capital of France?",
     options: ["Berlin", "London", "Paris", "Madrid"],
@@ -26,116 +24,105 @@ const questions = [
     options: ["Au", "Ag", "Gd", "Go"],
     answer: 0
   }
-
 ];
 
 let currentQuestion = 0;
 let score = 0;
 
-
-
-
 // DOM Elements
 const startScreen = document.getElementById('startscreen');
 const startButton = document.getElementById('startbutton');
 const card = document.querySelector('.card');
-const questionBox = document.querySelector('.question-box');
-const quizComplete = document.querySelector('.quiz-complete');
+const questionHeader = document.querySelector('.question-header');
 const questionNumber = document.querySelector('.question-number');
 const scoreDisplay = document.querySelector('.score');
+const questionBox = document.querySelector('.question-box');
+const questionTitle = questionBox.querySelector('h1');
 const nextBtn = document.querySelector('.next-btn');
+const quizComplete = document.querySelector('.quiz-complete');
 const retryBtn = document.querySelector('.retry-btn');
 
-//Show screen function
-function showScreen(screen) {
+// Hide all main sections
+function hideAll() {
   startScreen.style.display = 'none';
   card.style.display = 'none';
   questionBox.style.display = 'none';
   quizComplete.style.display = 'none';
-  screen.style.display = 'block';
 }
 
-
-
-// showScreen(     <div class="card">
-//         <div class="question-header">
-//           <span class="question-number">Question 1 of 5</span>
-//           <span class="score">Score: 0</span>
-//         </div>
-//         <hr class="divider" />
-//       </div>    );
-
-
-
-
+// Show only the relevant section
 function showScreen(screen) {
-  startScreen.style.display = 'none';
-  card.style.display = 'none';
-  questionBox.style.display = 'none';
-  quizComplete.style.display = 'none';
+  hideAll();
   screen.style.display = 'block';
+  if (screen === card || screen === questionBox) {
+    card.style.display = 'block';
+    questionBox.style.display = 'block';
+  }
 }
 
-
-
-
-//Start the quiz function
+// Start the quiz
 function startQuiz() {
-  currentQuestion = 4;
+  currentQuestion = 0;
   score = 0;
-  showScreen(card);
+  updateHeader();
   showQuestion();
+  showScreen(card);
 }
 
-
-questions[0]
-
-function showQuestion() {
-  const q = questions[currentQuestion];
-
-
-
+// Update question number and score in header
+function updateHeader() {
   questionNumber.textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
   scoreDisplay.textContent = `Score: ${score}`;
-  questionBox.querySelector('h1').textContent = q.question;
-  // Remove old options
+}
+
+// Show the current question and options
+function showQuestion() {
+  updateHeader();
+  const q = questions[currentQuestion];
+  questionTitle.textContent = q.question;
+
+  // Remove old option buttons
   questionBox.querySelectorAll('button.option-btn').forEach(btn => btn.remove());
-  // Add new options
+
+  // Add new option buttons
   q.options.forEach((opt, idx) => {
     const btn = document.createElement('button');
     btn.textContent = opt;
     btn.className = 'option-btn';
-    btn.onclick = () => selectOption(idx);
+    btn.onclick = () => selectOption(idx, btn);
+    btn.style.margin = '8px 0';
+    btn.style.display = 'block';
+    btn.style.width = '100%';
+    btn.style.padding = '10px';
+    btn.style.fontSize = '1rem';
     questionBox.insertBefore(btn, nextBtn);
   });
-  showScreen(questionBox);
+
   nextBtn.style.display = 'none';
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function selectOption(idx) {
+// Handle option selection
+function selectOption(idx, btn) {
   const q = questions[currentQuestion];
+  const optionButtons = questionBox.querySelectorAll('button.option-btn');
+  optionButtons.forEach(b => b.disabled = true);
+
   if (idx === q.answer) {
     score++;
+    btn.style.background = '#4caf50';
+    btn.style.color = '#fff';
+  } else {
+    btn.style.background = '#f44336';
+    btn.style.color = '#fff';
+    // Highlight correct answer
+    optionButtons[q.answer].style.background = '#4caf50';
+    optionButtons[q.answer].style.color = '#fff';
   }
-  // Disable all option buttons
-  questionBox.querySelectorAll('button.option-btn').forEach(btn => btn.disabled = true);
+  updateHeader();
   nextBtn.style.display = 'inline-block';
 }
 
+// Go to next question or show results
 function nextQuestion() {
   currentQuestion++;
   if (currentQuestion < questions.length) {
@@ -145,13 +132,22 @@ function nextQuestion() {
   }
 }
 
+// Show quiz completion screen
 function showQuizComplete() {
   showScreen(quizComplete);
   quizComplete.querySelector('p').textContent = `Your Score: ${score}/${questions.length}`;
   quizComplete.querySelector('h2').textContent = `${Math.round((score / questions.length) * 100)}%`;
-  quizComplete.querySelector('.message em').textContent = score === questions.length ? 'Perfect score! 🎉' : score >= 3 ? 'Great job!' : 'Keep practicing!';
+  const msg = quizComplete.querySelector('.message em');
+  if (score === questions.length) {
+    msg.textContent = 'Perfect score! 🎉';
+  } else if (score >= 3) {
+    msg.textContent = 'Great job!';
+  } else {
+    msg.textContent = 'Keep practicing!';
+  }
 }
 
+// Retry the quiz
 function retryQuiz() {
   startQuiz();
 }
@@ -162,4 +158,5 @@ nextBtn.onclick = nextQuestion;
 retryBtn.onclick = retryQuiz;
 
 // Initial state
+hideAll();
 showScreen(startScreen);
